@@ -1,85 +1,144 @@
-import 'package:chat_bot_app/utils/colors.dart';
 import 'package:flutter/material.dart';
-
-import '../utils/util_helper.dart';
-
-class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({super.key});
-
+class DashboardApp extends StatefulWidget {
   @override
-  State<DashboardScreen> createState() => _DashboardScreenState();
+  State<DashboardApp> createState() => _DashboardAppState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> {
+class _DashboardAppState extends State<DashboardApp> {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.dark(),
+      home: ChatDashboardScreen(),
+    );
+  }
+}
+
+class ChatDashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      /// -------------- Appbar--------------------------///
       appBar: AppBar(
-        title: Text(
-          "Discover",
-          style: mTextStyle18(),
+        title: const Text.rich(
+          TextSpan(
+            text: "Chat",
+            style: TextStyle(fontWeight: FontWeight.bold),
+            children: [
+              TextSpan(
+                text: "bot",
+                style: TextStyle(color: Colors.orange),
+              ),
+            ],
+          ),
         ),
         actions: [
-          Container(
-            decoration: BoxDecoration(
-                color: AppColors.appGreenColor,
-                borderRadius: BorderRadius.circular(22)),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
-              child: Text(
-                "50% on pro",
-                style: mTextStyle18(fontWeight: FontWeight.bold),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white10 ,
+                borderRadius: BorderRadius.circular(100)
               ),
-            ),
+                child: IconButton(icon: Icon(Icons.face), onPressed: () {})),
           ),
-          IconButton(
-              onPressed: () {}, icon: const Icon(Icons.account_circle_outlined))
+
         ],
       ),
-      body: Center(
+      /// -----------------------------BODY-----------------------------------///
+      body: Padding(
+        padding: const EdgeInsets.all(12.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 6.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  Row(children: [
+                    Icon(Icons.chat_bubble_outline) ,
+                    Text("New chat")
+                  ],) ,
                   Row(
                     children: [
-                      Image.asset(
-                        "assets/icon/new_chat.png",
-                        height: 30,
-                      ),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                      Text(
-                        "New Chat",
-                        style: mTextStyle15(),
-                      )
+                      Icon(Icons.history) ,
+                      Text("History")
                     ],
-                  ),
-                  Row(
-                    children: [
-                      Image.asset(
-                        "assets/icon/history.png",
-                        height: 20,
-                      ),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                      Text(
-                        "History",
-                        style: mTextStyle15(),
-                      )
-                    ],
-                  ),
+                  )
+
                 ],
               ),
-            ) ,
+            ),
+            /// Search Text field
+            TextField(
+              maxLines: 6,
+              decoration: InputDecoration(
+                hintText: "Write a question!",
+                hintStyle: const TextStyle(color: Colors.white38),
+                filled: true,
+                fillColor: Colors.grey[900],
+                prefixIcon: Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white10 ,
+                      borderRadius: BorderRadius.circular(100)
+                    ),
+                      child: const Icon(Icons.mic, color: Colors.white54)),
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            // Tab Bar
 
+            ListView.builder(itemBuilder: (context, index) {
+
+            },) ,
+
+            const SizedBox(height: 20),
+            // Quick Questions Grid
+            Expanded(
+              child: GridView.count(
+                crossAxisCount: 2,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+                children: [
+                  _buildCard("What is AI", Icons.ac_unit, Colors.blue),
+                  _buildCard("Tell me a Joke", Icons.emoji_emotions, Colors.green),
+                  _buildCard("Explain Machine Learning", Icons.computer, Colors.purple),
+                  _buildCard("Climate Change?", Icons.cloud, Colors.pink),
+                ],
+              ),
+            ),
           ],
+        ),
+      ),
+    );
+  }
+
+
+  Widget _buildCard(String title, IconData icon, Color color) {
+    return Card(
+      color: Colors.grey[850],
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      child: InkWell(
+        onTap: () {},
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 40, color: color),
+              SizedBox(height: 10),
+              Text(title, textAlign: TextAlign.center, style: TextStyle(color: Colors.white)),
+            ],
+          ),
         ),
       ),
     );

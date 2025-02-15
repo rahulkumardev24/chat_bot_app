@@ -12,7 +12,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Chat Screen"),),
-      body: Column(children: [Text("Chat Scareen")],),
+      body: Column(children: [Text("Chat Screen")],),
     ) ;
   }
 }

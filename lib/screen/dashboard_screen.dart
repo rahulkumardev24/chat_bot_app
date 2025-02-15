@@ -1,34 +1,28 @@
+import 'package:chat_bot_app/utils/app_constant.dart';
+import 'package:chat_bot_app/utils/util_helper.dart';
 import 'package:flutter/material.dart';
-class DashboardApp extends StatefulWidget {
+
+class DashboardScreen extends StatefulWidget {
   @override
-  State<DashboardApp> createState() => _DashboardAppState();
+  State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardAppState extends State<DashboardApp> {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark(),
-      home: ChatDashboardScreen(),
-    );
-  }
-}
+class _DashboardScreenState extends State<DashboardScreen> {
+  int selectedIndex = 0;
 
-class ChatDashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       /// -------------- Appbar--------------------------///
       appBar: AppBar(
-        title: const Text.rich(
+        title:  Text.rich(
           TextSpan(
             text: "Chat",
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style: mTextStyle25(fontColor: Colors.white),
             children: [
               TextSpan(
                 text: "bot",
-                style: TextStyle(color: Colors.orange),
+                style: mTextStyle25(fontColor: Colors.orange),
               ),
             ],
           ),
@@ -37,55 +31,55 @@ class ChatDashboardScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12.0),
             child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white10 ,
-                borderRadius: BorderRadius.circular(100)
-              ),
-                child: IconButton(icon: Icon(Icons.face), onPressed: () {})),
+                decoration: BoxDecoration(
+                    color: Colors.white10,
+                    borderRadius: BorderRadius.circular(100)),
+                child: IconButton(icon: const Icon(Icons.face), onPressed: () {})),
           ),
-
         ],
       ),
+
       /// -----------------------------BODY-----------------------------------///
       body: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 6.0),
+             Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(children: [
-                    Icon(Icons.chat_bubble_outline) ,
-                    Text("New chat")
-                  ],) ,
                   Row(
                     children: [
-                      Icon(Icons.history) ,
-                      Text("History")
+                      const Icon(Icons.chat_bubble_outline),
+                      const SizedBox(width: 4,),
+                      Text("New chat" , style: mTextStyle18(fontColor: Colors.white),)
                     ],
+                  ),
+                  Row(
+                    children: [const Icon(Icons.history),
+                      const SizedBox(width: 4,),
+                      Text("History" , style: mTextStyle18(fontColor: Colors.white),)],
                   )
-
                 ],
               ),
             ),
+
             /// Search Text field
             TextField(
               maxLines: 6,
               decoration: InputDecoration(
                 hintText: "Write a question!",
-                hintStyle: const TextStyle(color: Colors.white38),
+                hintStyle: mTextStyle18(fontColor: Colors.white38),
                 filled: true,
                 fillColor: Colors.grey[900],
                 prefixIcon: Padding(
                   padding: const EdgeInsets.all(4),
                   child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white10 ,
-                      borderRadius: BorderRadius.circular(100)
-                    ),
+                      decoration: BoxDecoration(
+                          color: Colors.white10,
+                          borderRadius: BorderRadius.circular(100)),
                       child: const Icon(Icons.mic, color: Colors.white54)),
                 ),
                 border: OutlineInputBorder(
@@ -97,48 +91,96 @@ class ChatDashboardScreen extends StatelessWidget {
             const SizedBox(height: 20),
             // Tab Bar
 
-            ListView.builder(itemBuilder: (context, index) {
-
-            },) ,
+            /// ----------------------- Tab --------------------------------------///
+            SizedBox(
+              height: 40,
+              child: ListView.builder(
+                itemCount: AppConstant.defaultQues.length,
+                scrollDirection: Axis.horizontal,
+                shrinkWrap: true,
+                itemBuilder: (context, index) {
+                  return InkWell(
+                    onTap: () {
+                      setState(() {
+                        selectedIndex = index;
+                      });
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 8),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          border: index == selectedIndex
+                              ? Border.all(width: 1, color: Colors.orange)
+                              : null),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 9),
+                        child: Center(
+                            child: Text(
+                          AppConstant.defaultQues[index]["title"],
+                          style: index == selectedIndex
+                              ? mTextStyle18(
+                                  fontColor: Colors.orange,
+                                )
+                              : mTextStyle18(
+                                  fontColor: Colors.white60,
+                                ),
+                        )),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
 
             const SizedBox(height: 20),
-            // Quick Questions Grid
+            ///  Quick Questions Grid
             Expanded(
-              child: GridView.count(
-                crossAxisCount: 2,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-                children: [
-                  _buildCard("What is AI", Icons.ac_unit, Colors.blue),
-                  _buildCard("Tell me a Joke", Icons.emoji_emotions, Colors.green),
-                  _buildCard("Explain Machine Learning", Icons.computer, Colors.purple),
-                  _buildCard("Climate Change?", Icons.cloud, Colors.pink),
-                ],
+              child: GridView.builder(
+                itemCount:
+                    AppConstant.defaultQues[selectedIndex]['question'].length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisSpacing: 8, mainAxisSpacing: 8, crossAxisCount: 2),
+                itemBuilder: (context, index) {
+                  Map<String, dynamic> data =
+                      AppConstant.defaultQues[selectedIndex]['question'][index];
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.05),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                              decoration: BoxDecoration(
+                                  shape: BoxShape.circle, color: data['color']),
+                              child: Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child: Icon(
+                                  data['icon'],
+                                  size: 30,
+                                ),
+                              )),
+                          const SizedBox(
+                            height: 12,
+                          ),
+                          Text(
+                            data['ques'],
+                            style: mTextStyle18(
+                                fontColor: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          )
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-
-  Widget _buildCard(String title, IconData icon, Color color) {
-    return Card(
-      color: Colors.grey[850],
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      child: InkWell(
-        onTap: () {},
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, size: 40, color: color),
-              SizedBox(height: 10),
-              Text(title, textAlign: TextAlign.center, style: TextStyle(color: Colors.white)),
-            ],
-          ),
         ),
       ),
     );

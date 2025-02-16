@@ -57,6 +57,7 @@ TextStyle mTextStyle11({
   return TextStyle(
       fontSize: 11,
       fontWeight: fontWeight,
+      color: fontColor,
       fontFamily: 'fontMain'
   );
 }

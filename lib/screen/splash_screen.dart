@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:chat_bot_app/screen/chat_screen.dart';
+import 'package:chat_bot_app/screen/dashboard_screen.dart';
 import 'package:flutter/material.dart';
 
 import '../utils/util_helper.dart';
@@ -16,8 +17,8 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     Timer(const Duration(seconds: 3), () {
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => ChatScreen()));
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => DashboardScreen()));
     });
   }
 

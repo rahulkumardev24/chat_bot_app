@@ -1,3 +1,4 @@
+import 'package:chat_bot_app/screen/chat_screen.dart';
 import 'package:chat_bot_app/utils/app_constant.dart';
 import 'package:chat_bot_app/utils/util_helper.dart';
 import 'package:flutter/material.dart';
@@ -9,13 +10,14 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   int selectedIndex = 0;
+  var searchController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       /// -------------- Appbar--------------------------///
       appBar: AppBar(
-        title:  Text.rich(
+        title: Text.rich(
           TextSpan(
             text: "Chat",
             style: mTextStyle25(fontColor: Colors.white),
@@ -34,7 +36,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 decoration: BoxDecoration(
                     color: Colors.white10,
                     borderRadius: BorderRadius.circular(100)),
-                child: IconButton(icon: const Icon(Icons.face), onPressed: () {})),
+                child:
+                    IconButton(icon: const Icon(Icons.face), onPressed: () {})),
           ),
         ],
       ),
@@ -45,7 +48,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-             Padding(
+            Padding(
               padding: const EdgeInsets.symmetric(vertical: 6.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -53,39 +56,102 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   Row(
                     children: [
                       const Icon(Icons.chat_bubble_outline),
-                      const SizedBox(width: 4,),
-                      Text("New chat" , style: mTextStyle18(fontColor: Colors.white),)
+                      const SizedBox(
+                        width: 4,
+                      ),
+                      Text(
+                        "New chat",
+                        style: mTextStyle18(fontColor: Colors.white),
+                      )
                     ],
                   ),
                   Row(
-                    children: [const Icon(Icons.history),
-                      const SizedBox(width: 4,),
-                      Text("History" , style: mTextStyle18(fontColor: Colors.white),)],
+                    children: [
+                      const Icon(Icons.history),
+                      const SizedBox(
+                        width: 4,
+                      ),
+                      Text(
+                        "History",
+                        style: mTextStyle18(fontColor: Colors.white),
+                      )
+                    ],
                   )
                 ],
               ),
             ),
 
             /// Search Text field
-            TextField(
-              maxLines: 6,
-              decoration: InputDecoration(
-                hintText: "Write a question!",
-                hintStyle: mTextStyle18(fontColor: Colors.white38),
-                filled: true,
-                fillColor: Colors.grey[900],
-                prefixIcon: Padding(
-                  padding: const EdgeInsets.all(4),
-                  child: Container(
-                      decoration: BoxDecoration(
-                          color: Colors.white10,
-                          borderRadius: BorderRadius.circular(100)),
-                      child: const Icon(Icons.mic, color: Colors.white54)),
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
+            Container(
+              decoration: BoxDecoration(
+                  color: Colors.grey[900],
+                  borderRadius: BorderRadius.circular(9)),
+              child: Column(
+                children: [
+                  TextField(
+                    controller: searchController,
+                    style: mTextStyle18(fontColor: Colors.white70),
+                    onSubmitted: (value) {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  ChatScreen(query: searchController.text)));
+                    },
+                    maxLines: 6,
+                    decoration: InputDecoration(
+                      hintText: "Write a question!",
+                      hintStyle: mTextStyle18(fontColor: Colors.white38),
+                      filled: true,
+                      fillColor: Colors.grey[900],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(4),
+                        child: Container(
+                            decoration: BoxDecoration(
+                                color: Colors.white10,
+                                borderRadius: BorderRadius.circular(100)),
+                            child: const Padding(
+                              padding: EdgeInsets.all(4.0),
+                              child: Icon(
+                                Icons.mic,
+                                color: Colors.white,
+                                size: 30,
+                              ),
+                            )),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ChatScreen(
+                                        query: searchController.text)));
+                          },
+                          child: Container(
+                              decoration: BoxDecoration(
+                                  color: Colors.orange,
+                                  borderRadius: BorderRadius.circular(12)),
+                              child: const Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 16.0, vertical: 6),
+                                child: Icon(Icons.send),
+                              )),
+                        ),
+                      ),
+                    ],
+                  )
+                ],
               ),
             ),
             const SizedBox(height: 20),
@@ -133,6 +199,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
 
             const SizedBox(height: 20),
+
             ///  Quick Questions Grid
             Expanded(
               child: GridView.builder(
@@ -143,37 +210,54 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 itemBuilder: (context, index) {
                   Map<String, dynamic> data =
                       AppConstant.defaultQues[selectedIndex]['question'][index];
-                  return Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.05),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                              decoration: BoxDecoration(
-                                  shape: BoxShape.circle, color: data['color']),
-                              child: Padding(
-                                padding: const EdgeInsets.all(4.0),
-                                child: Icon(
-                                  data['icon'],
-                                  size: 30,
-                                ),
-                              )),
-                          const SizedBox(
-                            height: 12,
-                          ),
-                          Text(
-                            data['ques'],
-                            style: mTextStyle18(
-                                fontColor: Colors.white,
-                                fontWeight: FontWeight.bold),
-                          )
-                        ],
+                  return InkWell(
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ChatScreen(
+                                    query: data['ques'],
+                                  )));
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.05),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.bottomLeft,
+                                child: Container(
+                                    margin: const EdgeInsets.symmetric(
+                                        vertical: 11),
+                                    decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: data['color']),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(4.0),
+                                      child: Icon(
+                                        data['icon'],
+                                        size: 30,
+                                      ),
+                                    )),
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                data['ques'],
+                                style: mTextStyle18(
+                                    fontColor: Colors.white,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            )
+                          ],
+                        ),
                       ),
                     ),
                   );

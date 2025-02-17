@@ -3,6 +3,7 @@ import 'package:chat_bot_app/model/message_model.dart';
 import 'package:chat_bot_app/provider/msg_provider.dart';
 import 'package:chat_bot_app/utils/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -76,8 +77,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 decoration: BoxDecoration(
                     color: Colors.white10,
                     borderRadius: BorderRadius.circular(100)),
-                child: IconButton(
-                    icon: const Icon(Icons.face), onPressed: () {})),
+                child:
+                    IconButton(icon: const Icon(Icons.face), onPressed: () {})),
           ),
         ],
       ),
@@ -179,14 +180,13 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget botChatBox(MessageModel msgModel, int index) {
     var time = dateFormat.format(
         DateTime.fromMillisecondsSinceEpoch(int.parse(msgModel.sendAt!)));
-
     return Align(
       alignment: Alignment.centerLeft,
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
         padding: const EdgeInsets.all(12),
-        decoration: const BoxDecoration(
-          color: Colors.orange,
+        decoration:  BoxDecoration(
+          color: Colors.orange.shade300,
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(21),
             topRight: Radius.circular(21),
@@ -201,36 +201,63 @@ class _ChatScreenState extends State<ChatScreen> {
           children: [
             /// Bot Message
             msgModel.isRead!
-                ? Text(
-              msgModel.msg!,
-              style: mTextStyle18(fontColor: Colors.black87),
-            )
-                : DefaultTextStyle(
-              style: mTextStyle18(fontColor: Colors.black87),
-              child: AnimatedTextKit(
-                repeatForever: false,
-                displayFullTextOnTap: true,
-                isRepeatingAnimation: false,
-                onFinished: () {
-                  context.read<MessageProvider>().updateMessageRead(index);
-                },
-                animatedTexts: [
-                  TypewriterAnimatedText(
+                ? SelectableText(
                     msgModel.msg!,
-                    textStyle: mTextStyle18(fontColor: Colors.black87),
+                    style: mTextStyle18(fontColor: Colors.black87),
+                  )
+                : DefaultTextStyle(
+                    style: mTextStyle18(fontColor: Colors.black87),
+                    child: AnimatedTextKit(
+                      repeatForever: false,
+                      displayFullTextOnTap: true,
+                      isRepeatingAnimation: false,
+                      onFinished: () {
+                        context
+                            .read<MessageProvider>()
+                            .updateMessageRead(index);
+                      },
+                      animatedTexts: [
+                        TypewriterAnimatedText(
+                          msgModel.msg!,
+                          textStyle: mTextStyle18(fontColor: Colors.black87),
+                        ),
+                      ],
+                    ),
                   ),
-                ],
-              ),
-            ),
 
             /// Timestamp
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Image.asset(
-                  "assets/icon/typing.png",
-                  height: 30,
-                  width: 30,
+                Row(
+                  children: [
+                    Image.asset(
+                      "assets/icon/typing.png",
+                      height: 30,
+                      width: 30,
+                    ),
+                    InkWell(
+                      onTap: () {
+                        Clipboard.setData(ClipboardData(text: msgModel.msg!));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              "Text copied to clipboard!",
+                              style: mTextStyle18(fontColor: Colors.white70),
+                            ),
+                            backgroundColor: Colors.orange.withOpacity(0.8),
+                          ),
+                        );
+                      },
+                      child: const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Icon(
+                          Icons.copy_rounded,
+                          color: Colors.black45,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 Text(
                   time,
@@ -246,5 +273,4 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
     );
   }
-
 }

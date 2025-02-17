@@ -1,7 +1,10 @@
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:chat_bot_app/model/message_model.dart';
+import 'package:chat_bot_app/provider/msg_provider.dart';
 import 'package:chat_bot_app/utils/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import '../utils/util_helper.dart';
 
@@ -14,23 +17,21 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  var chatBoxController = TextEditingController();
   List<MessageModel> listMsg = [];
 
-  /// time format
+  /// Time format
   DateFormat dateFormat = DateFormat().add_jm();
 
   @override
   void initState() {
     super.initState();
-    listMsg.add(MessageModel(
-        msg: widget.query,
-        sendAt: DateTime.now().millisecondsSinceEpoch.toString(),
-        sendId: 0));
-    listMsg.add(MessageModel(
-        msg: "This is the response of your a query on the give questions",
-        sendAt: DateTime.now().millisecondsSinceEpoch.toString(),
-        sendId: 1));
 
+    /// Send initial query when the screen opens
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      Provider.of<MessageProvider>(context, listen: false)
+          .sendMessage(message: widget.query);
+    });
   }
 
   @override
@@ -41,10 +42,7 @@ class _ChatScreenState extends State<ChatScreen> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(
-              "assets/icon/robot.png",
-              height: 30,
-            ),
+            Image.asset("assets/icon/robot.png", height: 30),
             Text.rich(
               TextSpan(
                 text: "Chat",
@@ -78,8 +76,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 decoration: BoxDecoration(
                     color: Colors.white10,
                     borderRadius: BorderRadius.circular(100)),
-                child:
-                    IconButton(icon: const Icon(Icons.face), onPressed: () {})),
+                child: IconButton(
+                    icon: const Icon(Icons.face), onPressed: () {})),
           ),
         ],
       ),
@@ -87,26 +85,39 @@ class _ChatScreenState extends State<ChatScreen> {
         children: [
           /// ---------------- Chat List ----------------------- ///
           Expanded(
-              child: ListView.builder(
+            child: Consumer<MessageProvider>(
+              builder: (_, provider, child) {
+                listMsg = provider.listMessage;
+                return ListView.builder(
                   reverse: true,
                   itemCount: listMsg.length,
                   itemBuilder: (context, index) {
                     return listMsg[index].sendId == 0
                         ? userChatBox(listMsg[index])
-                        : botChatBox(listMsg[index]);
-                  })),
+                        : botChatBox(listMsg[index], index); //
+                  },
+                );
+              },
+            ),
+          ),
+
+          /// Chat box
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
+              controller: chatBoxController,
               style: mTextStyle18(fontColor: Colors.white70),
               decoration: InputDecoration(
-                prefixIcon: const Icon(
-                  Icons.mic,
-                  color: Colors.white,
-                ),
-                suffixIcon: const Icon(
-                  Icons.send,
-                  color: Colors.orange,
+                prefixIcon: const Icon(Icons.mic, color: Colors.white),
+                suffixIcon: InkWell(
+                  onTap: () {
+                    Provider.of<MessageProvider>(context, listen: false)
+                        .sendMessage(message: chatBoxController.text);
+                    setState(() {
+                      chatBoxController.clear();
+                    });
+                  },
+                  child: const Icon(Icons.send, color: Colors.orange),
                 ),
                 hintText: "Write a question!",
                 hintStyle: mTextStyle18(fontColor: Colors.white38),
@@ -124,7 +135,6 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  /// custom widgets
   /// Right Side - User Chat Box
   Widget userChatBox(MessageModel msgModel) {
     var time = dateFormat.format(
@@ -166,9 +176,10 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   /// Left Side - Bot Chat Box
-  Widget botChatBox(MessageModel msgModel) {
+  Widget botChatBox(MessageModel msgModel, int index) {
     var time = dateFormat.format(
         DateTime.fromMillisecondsSinceEpoch(int.parse(msgModel.sendAt!)));
+
     return Align(
       alignment: Alignment.centerLeft,
       child: Container(
@@ -188,20 +199,52 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            /// Bot Message
+            msgModel.isRead!
+                ? Text(
               msgModel.msg!,
               style: mTextStyle18(fontColor: Colors.black87),
-            ),
-            Text(
-              time,
-              style: mTextStyle11(
-                fontColor: Colors.white54,
-                fontWeight: FontWeight.bold,
+            )
+                : DefaultTextStyle(
+              style: mTextStyle18(fontColor: Colors.black87),
+              child: AnimatedTextKit(
+                repeatForever: false,
+                displayFullTextOnTap: true,
+                isRepeatingAnimation: false,
+                onFinished: () {
+                  context.read<MessageProvider>().updateMessageRead(index);
+                },
+                animatedTexts: [
+                  TypewriterAnimatedText(
+                    msgModel.msg!,
+                    textStyle: mTextStyle18(fontColor: Colors.black87),
+                  ),
+                ],
               ),
+            ),
+
+            /// Timestamp
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Image.asset(
+                  "assets/icon/typing.png",
+                  height: 30,
+                  width: 30,
+                ),
+                Text(
+                  time,
+                  style: mTextStyle15(
+                    fontColor: Colors.white54,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
       ),
     );
   }
+
 }
